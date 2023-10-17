@@ -17,8 +17,12 @@ class EmployeeCheckin(Document):
 
     def validate_duplicate_log(self):
         time_format = "%Y-%m-%d %H:%M:%S"
-        time = datetime.datetime.strptime(self.time, time_format)
-        date = time.date()
+
+        # Check if self.time is already a datetime object
+        if not isinstance(self.time, datetime.datetime):
+            self.time = datetime.datetime.strptime(self.time, time_format)
+
+        date = self.time.date()
 
         duplicate_logs = frappe.get_all(
             "Employee Checkin",
@@ -32,6 +36,7 @@ class EmployeeCheckin(Document):
             frappe.throw(
                 _("This employee has already checked in on the selected date.")
             )
+
 
     def fetch_shift(self):
         shift_actual_timings = get_actual_start_end_datetime_of_shift(
